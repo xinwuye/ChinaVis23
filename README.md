@@ -15,7 +15,7 @@ npm run dev
 ## 技术栈
 ### 前端：
 
-JavaScript
+JavaScript/TypeScript
 
 Vue 3：前端框架，API （强烈）建议Preference选择Composition
 
