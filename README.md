@@ -1,6 +1,7 @@
 # ChinaVis23
 
-# 系统使用
+## 系统使用
+
 '''
 git clone https://github.com/tz1010647987/ChinaVis23.git
 cd ChinaVis23/VASystem
@@ -8,7 +9,7 @@ npm i
 npm run dev
 '''
 
-# 最终报告
+## 最终报告
 最终报告的腾讯文档在微信群
 
 ## 技术栈
