@@ -14,10 +14,10 @@
           <el-col :span="8">
             <ProfileView />
           </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <TrafficSituationView />
           </el-col>
-          <el-col :span="8">
+          <el-col :span="4">
             another view?
           </el-col>
         </el-row>
