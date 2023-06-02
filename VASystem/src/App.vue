@@ -4,18 +4,18 @@
       <el-main>
         <el-row>
           <el-col :span="6">
-            <ControlPanel />
+            <ControlPanel/>
           </el-col>
           <el-col :span="18">
-            <MapView />
+            <MapView/>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="8">
-            <ProfileView />
+            <ProfileView/>
           </el-col>
           <el-col :span="12">
-            <TrafficSituationView />
+            <TrafficSituationView/>
           </el-col>
           <el-col :span="4">
             another view?
@@ -50,9 +50,11 @@
   height: 50% !important;
   padding-bottom: 4px;
 }
+
 .ep-row:last-child {
   margin-bottom: 0;
 }
+
 .ep-col {
   border-radius: 4px;
   padding-right: 4px;

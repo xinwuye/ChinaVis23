@@ -1,16 +1,13 @@
 <template>
   <div
-    class="control-panel"
-    style="borderRadius: small"
+      class="control-panel"
+      style="borderRadius: small"
   >
     ControlPanel
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue'
-
-</script>
+<script lang="ts" setup></script>
 
 <style scoped>
 .control-panel {
