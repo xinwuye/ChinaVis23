@@ -11,7 +11,7 @@ import sys
 from services.area import CutLine, OneLineDividedArea, TwoLinesDividedArea, ClosedArea
 from services.preprocessing import interpolation, slope
 from services.kmeans import find_outliers
-from utils.data_utils import load_data
+from utils.data_utils import load_data, pack_data
 from utils.filter import Filter
 from services.acceleration import calculate_acceleration, sharp_change_accelerate
 
@@ -80,11 +80,14 @@ def get_outliers_auto():
 
     filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
                                                       length_upper_bound)
+    if filtered_trajectories is None:
+        filtered_trajectories = {}
+
     interpolation(filtered_trajectories, length_upper_bound + 1)
     slopes = slope(filtered_trajectories, length_upper_bound)
     outliers = find_outliers(slopes, cluster, outlier_threshold)
 
-    return outliers
+    return pack_data(outliers, data)
 
 
 @app.route('/outliers/manual/acceleration', methods=['GET'])
