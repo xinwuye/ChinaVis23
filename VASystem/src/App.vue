@@ -6,19 +6,22 @@
           <el-col :span="6">
             <ControlPanel/>
           </el-col>
-          <el-col :span="18">
+          <el-col :span="10">
             <MapView/>
+          </el-col>
+          <el-col :span="8">
+            <HistoryView/>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="8">
-            <ProfileView/>
+            <MetricView/>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">
             <TrafficSituationView/>
           </el-col>
-          <el-col :span="4">
-            another view?
+          <el-col :span="8">
+            <HeatmapView/>
           </el-col>
         </el-row>
       </el-main>

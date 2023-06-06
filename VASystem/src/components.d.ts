@@ -10,18 +10,19 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     ControlPanel: typeof import('./components/ControlPanel.vue')['default']
-    ElCard: typeof import('element-plus/es')['ElCard']
+    copy: typeof import('./components/ProfileView copy.vue')['default']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElRow: typeof import('element-plus/es')['ElRow']
-    ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
+    HeatmapView: typeof import('./components/HeatmapView.vue')['default']
+    HistoryView: typeof import('./components/HistoryView.vue')['default']
     MapView: typeof import('./components/MapView.vue')['default']
-    ProfileView: typeof import('./components/ProfileView.vue')['default']
+    MetricView: typeof import('./components/MetricView.vue')['default']
     TrafficSituationView: typeof import('./components/TrafficSituationView.vue')['default']
   }
 }
