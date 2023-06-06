@@ -69,7 +69,7 @@ Flask：轻量级的Python Web框架，用于构建后端API
 - 基于TGC-LSTM的预测和分析（交通态势，已完成）
 
 ### 可视分析系统
-![image](https://github.com/tz1010647987/ChinaVis23/assets/61437528/7f1a0f87-1987-4a97-9759-05058aa0ef6a)
+![image](https://github.com/tz1010647987/ChinaVis23/assets/61437528/b3e40ae7-5c54-4cc3-bdb0-d62163755c8c)
 
 #### 控制面板（进行中）
 - （未完成）选择数据集等
