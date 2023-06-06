@@ -9,27 +9,29 @@
 
     <div id="view-body">
       <div id="map-filter">
-        <el-tabs v-model="mode" class="mode-situation" type="border-card">
-          <div id="num-input-length-traj-lb" class="num-input-attr-traj">
-            <span class="label-filter"> Length min</span>
-            <el-input-number v-model="lengthLowerBound" size="small"></el-input-number>
-          </div>
-          <div id="num-input-length-traj-ub" class="num-input-attr-traj">
-            <span class="label-filter"> Length max</span>
-            <el-input-number v-model="lengthUpperBound" size="small"></el-input-number>
-          </div>
-          <el-tab-pane label="Auto" name="Auto">
-            <div v-if="mode === 'Auto'" class="num-input-attr-traj">
-              <span class="label-filter"> Outlier threshold</span>
-              <el-input-number v-model="autoThreshold" size="small" step="0.0001"></el-input-number>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="Manual" name="Manual">
-          </el-tab-pane>
+        <el-tabs v-model="mode" class="mode-situation" type="border-card" stretch="true" id="filter-tab">
+            <el-scrollbar height="100">
+              <div id="num-input-length-traj-lb" class="num-input-attr-traj">
+                <span class="label-filter"> Length min</span>
+                <el-input-number v-model="lengthLowerBound" size="small"></el-input-number>
+              </div>
+              <div id="num-input-length-traj-ub" class="num-input-attr-traj">
+                <span class="label-filter"> Length max</span>
+                <el-input-number v-model="lengthUpperBound" size="small"></el-input-number>
+              </div>
+              <el-tab-pane label="Auto" name="Auto">
+                <div v-if="mode === 'Auto'" class="num-input-attr-traj">
+                  <span class="label-filter"> Outlier threshold</span>
+                  <el-input-number v-model="autoThreshold" size="small" step="0.0001"></el-input-number>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="Manual" name="Manual">
+              </el-tab-pane>
+            </el-scrollbar>
+          <el-button id="filter-button" type="primary">
+            Filter
+          </el-button>
         </el-tabs>
-      </div>
-
-      <div id="candidate">
       </div>
 
       <div id="map-body">
@@ -79,6 +81,7 @@ async function drawMap() {
 
   d3.select(svg.value).call(zoom);
 }
+
 const mode = ref('Auto')
 
 
@@ -87,7 +90,9 @@ const lengthUpperBound = ref(10);
 
 const autoThreshold = ref(0.01);
 
-onMounted(()=>{drawMap();})
+onMounted(() => {
+  drawMap();
+})
 </script>
 
 
@@ -109,14 +114,14 @@ onMounted(()=>{drawMap();})
 }
 
 #map-filter {
-  width: 20%;
-  height: 100%;
+  width: 40%;
+  height: 50%;
   margin-left: 5px;
   margin-right: 5px;
 }
 
 #candidate {
-  width: 20%;
+  width: 0%;
   height: 90%;
   margin-left: 5px;
   margin-right: 5px;
@@ -160,6 +165,14 @@ onMounted(()=>{drawMap();})
 
 #svg {
   border: 1px solid rgb(200, 200, 200);
+}
+
+#filter-tab {
+  height: 100%;
+}
+
+#filter-button {
+  margin-top: 5%;
 }
 
 </style>
