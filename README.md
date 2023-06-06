@@ -10,7 +10,7 @@ npm run dev
 ```
 另一个terminal:
 ```
-cd ChinaVis23/VASystem/server
+cd ChinaVis23/server
 python app.py
 ```
 
