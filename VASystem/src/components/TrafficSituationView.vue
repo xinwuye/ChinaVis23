@@ -39,69 +39,6 @@ onMounted(() => {
   //   }); 
 
 
-
-
-  // function loadStockData(stock, callback) {
-  //     d3.csv('https://bost.ocks.org/mike/cubism/intro/stocks/' + stock + '.csv').then(function(rows) {
-  //         rows = rows.map(function(d) {
-  //               return [d3.timeParse(d.Date), +d.Open];
-  //           }).filter(function(d) {
-  //               return d[1];
-  //           }).reverse();
-        
-  //         // console.log(rows)
-
-  //         var date = rows[0][0],
-  //             compare = rows[400][1],
-  //             value = rows[0][1],
-  //             values = [];
-
-  //         rows.forEach(function(d, i ) {
-  //             values.push(value = (d[1] - compare) / compare);
-  //         });
-
-  //         callback(null, {
-  //             'stock': stock,
-  //             'values': values
-  //         });
-  //     });
-  // }
-
-  // const symbols = ['AAPL', 'BIDU', 'SINA', 'GOOG', 'MSFT', 'YHOO', 'ADBE', 'REDF', 'INSP', 'IACI', 'AVID', 'CCUR', 'DELL', 'DGII', 'HPQ', 'SGI', 'SMCI', 'SNDK', 'SYNA'];
-  // // const promises = symbols.map(stock => loadStockData(stock));
-  // const promises = symbols.map(stock => new Promise((resolve, reject) => {
-  //   loadStockData(stock, function(error, stockData) {
-  //     if (error) {
-  //       reject(error);
-  //     } else {
-  //       resolve(stockData);
-  //     }
-  //   });
-  // }));
-
-  // Promise.all(promises)
-  //   .then(stocks => {
-  //     console.log(stocks)
-  //     d3.select('#horizon-chart-container').selectAll('.horizon')
-  //       .data(stocks)
-  //       .enter()
-  //       .append('div')
-  //       .attr('class', 'horizon')
-  //       // .style('height', '20px')  // Set the desired height
-  //       // .style('width', '100px')
-  //       .each(function(d) {
-  //         horizonChart()
-  //           .height(10)
-  //           // .width(100)
-  //           .title(d.stock)
-  //           .call(this, d.values);
-  //       });
-  //   })
-  //   .catch(error => {
-  //     throw error;
-  //   });
-
-
   const data = [
   { name: "Von der Heydt", date: new Date("2016-01-04"), value: 163 },
   { name: "Kirschheck", date: new Date("2016-01-04"), value: 170 },
