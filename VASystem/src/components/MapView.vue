@@ -3,40 +3,51 @@
       class="map-view"
       style="borderRadius: small"
   >
-    <div id="header">
-      Map View
+    <div class="toolbar">
+      <span class="toolbar-text">地图视图</span>
     </div>
 
     <div id="view-body">
-      <div id="map-filter">
-        <el-tabs v-model="mode" class="mode-situation" type="border-card" stretch="true" id="filter-tab">
+      <div id="left-col">
+        <div id="map-filter">
+          <el-tabs v-model="mode" class="mode-situation" type="border-card" stretch="true" id="filter-tab">
             <el-scrollbar height="100">
               <div id="num-input-length-traj-lb" class="num-input-attr-traj">
-                <span class="label-filter"> Length min</span>
+                <span class="label-filter">路径长度最小值</span>
                 <el-input-number v-model="lengthLowerBound" size="small"></el-input-number>
               </div>
               <div id="num-input-length-traj-ub" class="num-input-attr-traj">
-                <span class="label-filter"> Length max</span>
+                <span class="label-filter">路径长度最大值</span>
                 <el-input-number v-model="lengthUpperBound" size="small"></el-input-number>
               </div>
-              <el-tab-pane label="Auto" name="Auto">
+              <el-tab-pane label="K-means模糊筛选" name="Auto">
                 <div v-if="mode === 'Auto'" class="num-input-attr-traj">
-                  <span class="label-filter"> Outlier threshold</span>
+                  <span class="label-filter">异常临界值</span>
                   <el-input-number v-model="autoThreshold" size="small" step="0.0001"></el-input-number>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="Manual" name="Manual">
+              <el-tab-pane label="数值精确筛选" name="Manual">
               </el-tab-pane>
             </el-scrollbar>
-          <el-button id="filter-button" type="primary">
-            Filter
-          </el-button>
-        </el-tabs>
+            <el-button id="filter-button" type="primary">
+              筛选
+            </el-button>
+          </el-tabs>
+        </div>
+        <div id="candidates">
+          <el-scrollbar></el-scrollbar>
+        </div>
       </div>
 
-      <div id="map-body">
-        <svg ref="svg" id="svg" width="100%" height="100%"></svg>
+      <div id="right-col">
+        <div id="map-body">
+          <svg ref="svg" id="svg" width="100%" height="100%"></svg>
+        </div>
+        <div>
+          <el-slider v-model="logicTimestamp"></el-slider>
+        </div>
       </div>
+
     </div>
 
   </div>
@@ -84,11 +95,12 @@ async function drawMap() {
 
 const mode = ref('Auto')
 
-
 const lengthLowerBound = ref(5);
 const lengthUpperBound = ref(10);
 
 const autoThreshold = ref(0.01);
+
+const logicTimestamp = ref(0);
 
 onMounted(() => {
   drawMap();
@@ -97,13 +109,6 @@ onMounted(() => {
 
 
 <style scoped>
-
-#header {
-  height: 2%;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
 
 .map-view {
   height: 100%;
@@ -114,24 +119,13 @@ onMounted(() => {
 }
 
 #map-filter {
-  width: 40%;
+  width: 100%;
   height: 50%;
-  margin-left: 5px;
-  margin-right: 5px;
-}
-
-#candidate {
-  width: 0%;
-  height: 90%;
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 #map-body {
-  width: 60%;
+  width: 100%;
   height: 90%;
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 .label-filter {
@@ -172,7 +166,36 @@ onMounted(() => {
 }
 
 #filter-button {
-  margin-top: 5%;
+  margin-top: 2%;
+}
+
+.toolbar-text {
+  font-size: 14px; /* Adjust the font size as per your preference */
+  padding-left: 5px;
+}
+
+.toolbar {
+  height: 20px;
+  width: 100%;
+  background-color: lightgrey;
+  text-align: left;
+  margin:1px;
+}
+
+#left-col {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+#right-col {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  padding-right: 5px;
+  padding-left: 5px;
 }
 
 </style>
