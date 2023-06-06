@@ -5,3 +5,4 @@ pandas
 networkx
 tqdm
 scikit-learn
+scipy

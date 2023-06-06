@@ -35,14 +35,15 @@ def traffic_situation_view_init():
     unique_fids = list(map(lambda x: x['properties']['fid'], laneroad_with9road_features))
     # convert vis_mat to list of list, each list represents a cell in the matrix.
     # the formate of each list is [row, col, value]
-    vis_mat_list = [[i, j, vis_mat[i][j]] 
-        for i in range(len(unique_fids)) 
-        for j in range(len(unique_fids))
-        if vis_mat[i][j] != 0]
-    return jsonify({'vis_mat_list': vis_mat_list, 
-                    'vis_mat_min': vis_mat_min, 
+    vis_mat_list = [[i, j, vis_mat[i][j]]
+                    for i in range(len(unique_fids))
+                    for j in range(len(unique_fids))
+                    if vis_mat[i][j] != 0]
+    return jsonify({'vis_mat_list': vis_mat_list,
+                    'vis_mat_min': vis_mat_min,
                     'vis_mat_max': vis_mat_max,
                     'unique_fids': unique_fids})
+
 
 # define the areas
 area_a = OneLineDividedArea([CutLine([-100, -210], [-60, -230])], 1)
@@ -63,26 +64,40 @@ def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int
     if area_id == 1:
         filtered = filter_func(area_a.is_in_area, length_lower_bound, length_upper_bound)
     elif area_id == 2:
-        filtered= filter_func(area_b.is_in_area, length_lower_bound, length_upper_bound)
+        filtered = filter_func(area_b.is_in_area, length_lower_bound, length_upper_bound)
     elif area_id == 3:
         filtered = filter_func(area_c.is_in_area, length_lower_bound, length_upper_bound)
     return filtered
 
 
-@app.route("/outliers/auto", methods=['GET'])
-def get_outliers_auto(area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10, cluster: int = 10,
-                      outlier_threshold: float = 0.05):
-    filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound, length_upper_bound)
+@app.route('/outliers/auto', methods=['GET'])
+def get_outliers_auto():
+    area_id = int(request.args.get('area_id'))
+    length_lower_bound = int(request.args.get('length_lower_bound', 5))
+    length_upper_bound = int(request.args.get('length_upper_bound', 10))
+    cluster = int(request.args.get('cluster', 10))
+    outlier_threshold = float(request.args.get('outlier_threshold', 0.05))
+
+    filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
+                                                      length_upper_bound)
     interpolation(filtered_trajectories, length_upper_bound + 1)
     slopes = slope(filtered_trajectories, length_upper_bound)
     outliers = find_outliers(slopes, cluster, outlier_threshold)
+
     return outliers
 
 
-@app.route("/outliers/manual/acceleration", methods=['GET'])
-def get_acceleration_auto(area_id: int, threshold:float, length_lower_bound: int = 5, length_upper_bound: int = 10):
-    filtered_velocity = filter_by_area_and_length(filterer.filter_velocity, area_id, length_lower_bound, length_upper_bound)
+@app.route('/outliers/manual/acceleration', methods=['GET'])
+def get_acceleration_auto():
+    area_id = int(request.args.get('area_id'))
+    threshold = float(request.args.get('threshold'))
+    length_lower_bound = int(request.args.get('length_lower_bound', 5))
+    length_upper_bound = int(request.args.get('length_upper_bound', 10))
+
+    filtered_velocity = filter_by_area_and_length(filterer.filter_velocity, area_id, length_lower_bound,
+                                                  length_upper_bound)
     acceleration = calculate_acceleration(filtered_velocity)
+
     return sharp_change_accelerate(acceleration, threshold)
 
 
