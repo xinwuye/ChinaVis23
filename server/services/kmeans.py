@@ -2,7 +2,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 
 
-def find_outliers(trajectories: dict, n_clusters:int, outlier_threshold):
+def find_distances(trajectories: dict, n_clusters:int, outlier_threshold):
     ids = list(trajectories.keys())
     slopes = list(trajectories.values())
 
@@ -11,5 +11,4 @@ def find_outliers(trajectories: dict, n_clusters:int, outlier_threshold):
 
     distances = pairwise_distances_argmin_min(slopes, centers)
 
-    outliers = [ids[i] for i, dist in enumerate(distances[0]) if dist > outlier_threshold]
-    return outliers
+    return ids, distances

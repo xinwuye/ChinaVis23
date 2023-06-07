@@ -10,7 +10,7 @@ from tqdm import tqdm
 import sys
 from services.area import CutLine, OneLineDividedArea, TwoLinesDividedArea, ClosedArea
 from services.preprocessing import interpolation, slope
-from services.kmeans import find_outliers
+from services.kmeans import find_distances
 from utils.data_utils import load_data, pack_data
 from utils.filter import Filter
 from services.acceleration import calculate_acceleration, sharp_change_accelerate
@@ -21,6 +21,14 @@ app.config.from_object(__name__)
 
 # enable CORS
 CORS(app, resources={r'/*': {'origins': '*'}})
+
+outliers = []
+kmeans_dis_min = -1
+kmeans_dis_max = -1
+auto_filter_params = [-1,-1,-1,-1]
+ids = []
+distances = []
+filtered_trajectories = {}
 
 
 @app.route('/TrafficSituationViewInit', methods=['POST', 'GET'])
@@ -72,22 +80,42 @@ def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int
 
 @app.route('/outliers/auto', methods=['GET'])
 def get_outliers_auto():
-    area_id = int(request.args.get('area_id'))
+    global outliers
+    global kmeans_dis_min
+    global kmeans_dis_max
+    global ids
+    global distances
+    global auto_filter_params
+    global filtered_trajectories
+    area_id = int(request.args.get('area_id', 1))
     length_lower_bound = int(request.args.get('length_lower_bound', 5))
     length_upper_bound = int(request.args.get('length_upper_bound', 10))
     cluster = int(request.args.get('cluster', 10))
-    outlier_threshold = float(request.args.get('outlier_threshold', 0.05))
+    outlier_threshold = float(request.args.get('outlier_threshold', 1))
 
-    filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
-                                                      length_upper_bound)
-    if filtered_trajectories is None:
-        filtered_trajectories = {}
+    if [area_id, length_lower_bound, length_upper_bound, cluster] != auto_filter_params:
+        filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
+                                                          length_upper_bound)
+        if filtered_trajectories is None:
+            filtered_trajectories = {}
 
-    interpolation(filtered_trajectories, length_upper_bound + 1)
-    slopes = slope(filtered_trajectories, length_upper_bound)
-    outliers = find_outliers(slopes, cluster, outlier_threshold)
+        interpolation(filtered_trajectories, length_upper_bound + 1)
+        slopes = slope(filtered_trajectories, length_upper_bound)
+        ids, distances = find_distances(slopes, cluster, outlier_threshold)
+        kmeans_dis_min = np.min(distances[0])
+        kmeans_dis_max = np.max(distances[0])
 
-    return pack_data(outliers, data)
+    auto_filter_params = [area_id, length_lower_bound, length_upper_bound, cluster]
+
+    outliers = [ids[i] for i, dist in enumerate(distances[0]) if dist > outlier_threshold]
+
+    return pack_data(outliers, data, filtered_trajectories.keys())
+
+
+@app.route('/outliers/auto/distance_range', methods=['GET'])
+def get_distance_range():
+    print(kmeans_dis_min, kmeans_dis_max)
+    return [float(kmeans_dis_min), float(kmeans_dis_max)]
 
 
 @app.route('/outliers/manual/acceleration', methods=['GET'])
@@ -109,4 +137,4 @@ if __name__ == '__main__':
     with open(os.path.join(path, 'laneroad_with9road.geojson')) as f:
         laneroad_with9road = json.load(f)
     laneroad_with9road_features = laneroad_with9road['features']
-    app.run(debug='True')
+    app.run(host="localhost", debug='True')
