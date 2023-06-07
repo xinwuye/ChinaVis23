@@ -25,7 +25,7 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 outliers = []
 kmeans_dis_min = -1
 kmeans_dis_max = -1
-auto_filter_params = [-1,-1,-1,-1]
+auto_filter_params = [-1, -1, -1, -1]
 ids = []
 distances = []
 filtered_trajectories = {}
@@ -109,7 +109,12 @@ def get_outliers_auto():
 
     outliers = [ids[i] for i, dist in enumerate(distances[0]) if dist > outlier_threshold]
 
-    return pack_data(outliers, data, filtered_trajectories.keys())
+    if len(outliers) > 50:
+        return {"error": 1, "data": []}
+    elif len(outliers) == 0:
+        return {"error": 2, "data": []}
+    else:
+        return {"error": 0, "data": pack_data(outliers, data, filtered_trajectories.keys())}
 
 
 @app.route('/outliers/auto/distance_range', methods=['GET'])
