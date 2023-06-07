@@ -47,7 +47,7 @@
             筛选结果
           </span>
           <el-select
-              v-model= "selectedID"
+              v-model="selectedID"
               placeholder="Outlier ID"
               style="width: 60%; padding-left: 5%; padding-right: 5%"
           >
@@ -56,6 +56,7 @@
                 :key="id"
                 :label="id"
                 :value="id"
+                @click="switchSelectedID"
             ></el-option>
           </el-select>
         </div>
@@ -66,7 +67,7 @@
           <svg ref="svg" id="svg" width="100%" height="100%"></svg>
         </div>
         <div>
-          <el-slider v-model="logicTimestamp"></el-slider>
+          <el-slider v-model="indexOfFrame" :max="indexMax"></el-slider>
         </div>
       </div>
 
@@ -88,7 +89,7 @@
 
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
 
@@ -109,6 +110,7 @@ async function doFilter() {
   })
       .then((response) => {
         loading.value = false;
+        console.log(response["data"])
         if (response["data"]["error"] != 0) {
           errorCode.value = response["data"]["error"];
           filterError.value = true;
@@ -121,11 +123,12 @@ async function doFilter() {
               errorMessage.value = "无匹配数据，请降低临界值";
               break;
             case 3:
-              errorMessage.value = "未知错误代码:"+String(errorCode.value);
+              errorMessage.value = "未知错误代码:" + String(errorCode.value);
 
           }
         } else {
-          matchIDs.value = response["data"]["data"].map((d)=>d[0]);
+          data.value = response["data"]["data"]
+          matchIDs.value = response["data"]["data"].map((d) => d[0]);
         }
       })
       .catch((error) => {
@@ -137,8 +140,8 @@ async function doFilter() {
 async function drawMap() {
   let geojsonData = await d3.json("./lane.geojson");
 
-  let projection = d3.geoIdentity().fitSize([400, 200], geojsonData);
-  let path = d3.geoPath().projection(projection);
+  projection.value = d3.geoIdentity().fitSize([400, 200], geojsonData);
+  let path = d3.geoPath().projection(projection.value);
 
   let features = geojsonData.features;
 
@@ -166,6 +169,39 @@ async function drawMap() {
   d3.select(svg.value).call(zoom);
 }
 
+function renderFrame(indexOfFrame) {
+  const lineGenerator = d3.line()
+      .curve(d3.curveCardinal)
+      .x(d => projection.value([d["x"], d["y"]])![0])
+      .y(d => projection.value([d["x"], d["y"]])![1]);
+
+  let perObjectCoordinate = {};
+  for (let i = 0; i <= indexOfFrame; i++) {
+    console.log(selectedData.value[i]);
+    if (!Object.keys(perObjectCoordinate).includes(String(selectedData.value[i].id))) {
+      perObjectCoordinate[String(selectedData.value[i].id)] = [JSON.parse(selectedData.value[i].position)];
+    } else {
+      perObjectCoordinate[String(selectedData.value[i].id)].push(JSON.parse(selectedData.value[i].position));
+    }
+  }
+
+  Object.values(perObjectCoordinate).forEach(coordinates => {
+    d3.selectAll(".traj").remove();
+
+    d3.selectAll("#map-container")
+        .data(Array(coordinates))
+        .append("path")
+        .attr("class", "traj")
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 0.4)
+        .attr("d", lineGenerator);
+  });
+}
+
+function switchSelectedID(){
+  indexOfFrame.value = 0;
+}
 function closeDialog() {
   filterError.value = false;
 }
@@ -177,22 +213,32 @@ const lengthLowerBound = ref(5);
 const lengthUpperBound = ref(10);
 const cluster = ref(10);
 const autoThreshold = ref(5);
-
-const logicTimestamp = ref(0);
-
 const loading = ref(false);
-
 const filterError = ref(false);
 const errorCode = ref(0);
-
 const errorMessage = ref("Default error message");
-
 const matchIDs = ref([]);
-
-const selectedID = ref();
+const selectedID = ref(0);
+const indexOfFrame = ref(0);
+const indexMax = ref(50);
+const data = ref([]);
+const selectedData = ref([]);
+const projection = ref();
 
 onMounted(() => {
   drawMap();
+  watch(selectedID, (newID, _) => {
+    let element = data.value.find((d) => d[0] == newID);
+    if (element && Array.isArray(element[1])) {
+      indexMax.value = element[1].length;
+    }
+    selectedData.value = element[1];
+    renderFrame(indexOfFrame.value);
+  });
+
+  watch(indexOfFrame, (newFrameIndex, _) => {
+    renderFrame(indexOfFrame.value);
+  });
 })
 
 </script>
