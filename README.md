@@ -2,15 +2,24 @@
 
 ## 系统使用
 
+前端：
+
 ```
 git clone https://github.com/tz1010647987/ChinaVis23.git
 cd ChinaVis23/VASystem
 npm i
 npm run dev
 ```
-另一个terminal:
+
+后端:
+
+**运行后端时，请将原始.json数据复制到server/data目录下，按顺序命名为0.json, 1.json, ...**
+
+Python版本要求：3.10
+
 ```
 cd ChinaVis23/server
+pip install -r requirements.txt
 python app.py
 ```
 
@@ -69,7 +78,8 @@ Flask：轻量级的Python Web框架，用于构建后端API
 - 基于TGC-LSTM的预测和分析（交通态势，已完成）
 
 ### 可视分析系统
-![image](https://github.com/tz1010647987/ChinaVis23/assets/61437528/b3e40ae7-5c54-4cc3-bdb0-d62163755c8c)
+<img width="1655" alt="Screenshot 2023-06-07 at 5 38 12 PM" src="https://github.com/tz1010647987/ChinaVis23/assets/98612013/6fafa8a6-b2a9-4c81-a1df-49a056ee4c77">
+
 
 #### 控制面板（进行中）
 - （未完成）选择数据集等
