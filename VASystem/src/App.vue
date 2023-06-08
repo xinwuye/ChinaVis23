@@ -7,7 +7,7 @@
             <ControlPanel/>
           </el-col>
           <el-col :span="10">
-            <!-- <MapView/> -->
+            <MapView/>
           </el-col>
           <el-col :span="8">
             <HistoryView/>
@@ -18,10 +18,10 @@
             <MetricView/>
           </el-col>
           <el-col :span="12">
-            <!-- <TrafficSituationView/> -->
+            <TrafficSituationView/>
           </el-col>
           <el-col :span="8">
-            <!-- <HeatmapView/> -->
+            <HeatmapView/>
           </el-col>
         </el-row>
       </el-main>
