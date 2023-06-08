@@ -1,6 +1,7 @@
 .vite-ssg-temp
 
 node_modules
+data
 .DS_Store
 dist
 dist-ssr

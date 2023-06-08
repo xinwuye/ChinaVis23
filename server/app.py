@@ -39,6 +39,39 @@ def traffic_situation_view_init():
                     'vis_mat_max': vis_mat_max,
                     'unique_fids': unique_fids})
 
+@app.route('/TrafficSituationViewRespond', methods=['POST', 'GET'])
+def traffic_situation_view_respond():
+    feat_names = [
+                #   '#未识别', # 0
+                  '#小型车辆',
+                  '#行人',
+                  '#非机动车',
+                  '#卡车',
+                #   '#厢式货车、面包车', # 5
+                  '#客车',
+                  '#静态物体',
+                #   '#路牙', # 8
+                #   '#锥桶', # 9
+                  '#手推车、三轮车',
+                #   '#信号灯', # 11
+                  '#门、阀门、闸机、出入口',
+                  '#停止车辆',
+                  '#慢行车辆',
+                  '#超速车辆',
+                  '平均车速',
+                  '交通参与者运动方向方差',
+                  '交通参与者车头朝向方差',]
+    fid = str(request.json['fid'])
+    situation = np.load('data/situation/situation_' + fid + '.npy')
+    ret = [[feat_names[j], i, situation[i, j]] 
+           for i in range(situation.shape[0]) 
+           for j in range(situation.shape[1])]
+
+    n = len(feat_names)
+
+    return jsonify({'situation': ret,
+                    'n': n})
+
 
 if __name__ == '__main__':
     path = 'data'

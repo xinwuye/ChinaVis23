@@ -7,21 +7,21 @@
             <ControlPanel/>
           </el-col>
           <el-col :span="10">
-            <MapView/>
+            <!-- <MapView/> -->
           </el-col>
           <el-col :span="8">
             <HistoryView/>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">
+          <el-col :span="4">
             <MetricView/>
           </el-col>
-          <el-col :span="8">
-            <TrafficSituationView/>
+          <el-col :span="12">
+            <!-- <TrafficSituationView/> -->
           </el-col>
           <el-col :span="8">
-            <HeatmapView/>
+            <!-- <HeatmapView/> -->
           </el-col>
         </el-row>
       </el-main>
