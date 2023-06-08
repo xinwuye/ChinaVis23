@@ -185,9 +185,8 @@ function renderFrame(indexOfFrame) {
     }
   }
 
+  d3.selectAll(".traj").remove();
   Object.values(perObjectCoordinate).forEach(coordinates => {
-    d3.selectAll(".traj").remove();
-
     d3.selectAll("#map-container")
         .data(Array(coordinates))
         .append("path")
