@@ -1,2 +1,0 @@
-Parameter.csv filter=lfs diff=lfs merge=lfs -text
-Velocity.csv filter=lfs diff=lfs merge=lfs -text
