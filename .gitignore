@@ -1,4 +1,16 @@
-node_modules/
-package-lock.json
-server/data
+.vite-ssg-temp
 
+node_modules
+data
+.DS_Store
+dist
+dist-ssr
+*.local
+
+# lock
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+*.log
+server/data/Parameter.csv

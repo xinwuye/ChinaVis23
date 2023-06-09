@@ -1,13 +1,13 @@
 <template>
   <div
-      id="traffic-situation-view"
-      class="traffic-situation-view"
+      id="heatmap-view"
+      class="heatmap-view"
       style="borderRadius: small"
   >
     <div class="toolbar">
       <span class="toolbar-text">路段重要性视图</span>
     </div>
-    <div id="heatmap-container" style="width: 100%;height:100%;" />
+    <div id="heatmap-container" />
   </div>
 </template>
 
@@ -16,11 +16,14 @@ import {onMounted, ref} from 'vue';
 import * as d3 from 'd3';
 import * as echarts from 'echarts'; // use canvas to render
 import axios from 'axios';
+import { storeToRefs } from "pinia";
+import { useGlobalStore } from '../stores/global';
 
+const globalStore = useGlobalStore();
 var data = null;
 
 onMounted(() => {
-  const heatmapContainer = document.getElementById('traffic-situation-view');
+  const heatmapContainer = document.getElementById('heatmap-view');
 
   const containerHeight = heatmapContainer.clientHeight;
   const containerWidth = heatmapContainer.clientWidth;
@@ -79,7 +82,7 @@ onMounted(() => {
           calculable: true,
           realtime: false,
           orient: "vertical",
-          left: "5%",
+          left: "1%",
           bottom: "30%",
           inRange: {
             color: [
@@ -118,7 +121,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.traffic-situation-view {
+.heatmap-view {
   height: 100%;
   width: 100%;
   border: 1px solid var(--el-border-color);
@@ -126,7 +129,7 @@ onMounted(() => {
   margin-top: 0px;
 }
 
-.traffic-situation-view .toolbar {
+.heatmap-view .toolbar {
   height: 20px;
   width: 100%;
   background-color: lightgrey;
@@ -137,5 +140,10 @@ onMounted(() => {
 .toolbar-text {
   font-size: 14px; /* Adjust the font size as per your preference */
   padding-left: 5px;
+}
+
+.heatmap-view #heatmap-container {
+  width: 100%;
+  height: calc(100% - 20px);
 }
 </style>

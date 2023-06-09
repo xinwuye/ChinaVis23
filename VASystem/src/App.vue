@@ -14,10 +14,10 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">
+          <el-col :span="4">
             <MetricView/>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <TrafficSituationView/>
           </el-col>
           <el-col :span="8">
