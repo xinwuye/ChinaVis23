@@ -61,18 +61,18 @@ def heatmap_view_init():
 @app.route('/TrafficSituationViewRespond', methods=['POST', 'GET'])
 def traffic_situation_view_respond():
     feat_names = [
-                #   '#未识别', # 0
+                  '#未识别', # 0
                   '#小型车辆',
                   '#行人',
                   '#非机动车',
                   '#卡车',
-                #   '#厢式货车、面包车', # 5
+                  '#厢式货车、面包车', # 5
                   '#客车',
                   '#静态物体',
-                #   '#路牙', # 8
-                #   '#锥桶', # 9
+                  '#路牙', # 8
+                  '#锥桶', # 9
                   '#手推车、三轮车',
-                #   '#信号灯', # 11
+                  '#信号灯', # 11
                   '#门、阀门、闸机、出入口',
                   '#停止车辆',
                   '#慢行车辆',
@@ -94,127 +94,88 @@ def traffic_situation_view_respond():
                     'n': n})
 
 
-# # define the areas
-# area_a = OneLineDividedArea([CutLine([-100, -210], [-60, -230])], 1)
-# area_b = TwoLinesDividedArea([CutLine([-60, -120], [-21, -142]), CutLine([-100, -210], [-60, -230])], 2)
-# area_c = ClosedArea(
-#     [CutLine([15, -100], [-50, -60]), CutLine([-80, -120], [-20, -160]), CutLine([-50, -60], [-20, -160]),
-#      CutLine([15, -100], [-80, -120])], 3)
+# define the areas
+area_a = OneLineDividedArea([CutLine([-100, -210], [-60, -230])], 1)
+area_b = TwoLinesDividedArea([CutLine([-60, -120], [-21, -142]), CutLine([-100, -210], [-60, -230])], 2)
+area_c = ClosedArea(
+    [CutLine([15, -100], [-50, -60]), CutLine([-80, -120], [-20, -160]), CutLine([-50, -60], [-20, -160]),
+     CutLine([15, -100], [-80, -120])], 3)
 
-# data = load_data()
-# filterer = Filter(data)
-
-
-# def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10):
-#     if filter_func.__self__.__class__.__name__ != 'Filter':
-#         raise TypeError('filter_func must be a Filter object')
-
-#     filtered = None
-#     if area_id == 1:
-#         filtered = filter_func(area_a.is_in_area, length_lower_bound, length_upper_bound)
-#     elif area_id == 2:
-#         filtered = filter_func(area_b.is_in_area, length_lower_bound, length_upper_bound)
-#     elif area_id == 3:
-#         filtered = filter_func(area_c.is_in_area, length_lower_bound, length_upper_bound)
-#     return filtered
+data = load_data()
+filterer = Filter(data)
 
 
-# @app.route('/outliers/auto', methods=['GET'])
-# def get_outliers_auto():
-#     global outliers
-#     global kmeans_dis_min
-#     global kmeans_dis_max
-#     global ids
-#     global distances
-#     global auto_filter_params
-#     global filtered_trajectories
-#     area_id = int(request.args.get('area_id', 1))
-#     length_lower_bound = int(request.args.get('length_lower_bound', 5))
-#     length_upper_bound = int(request.args.get('length_upper_bound', 10))
-#     cluster = int(request.args.get('cluster', 10))
-#     outlier_threshold = float(request.args.get('outlier_threshold', 1))
+def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10):
+    if filter_func.__self__.__class__.__name__ != 'Filter':
+        raise TypeError('filter_func must be a Filter object')
 
-#     if [area_id, length_lower_bound, length_upper_bound, cluster] != auto_filter_params:
-#         filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
-#                                                           length_upper_bound)
-#         if filtered_trajectories is None:
-#             filtered_trajectories = {}
-
-#         interpolation(filtered_trajectories, length_upper_bound + 1)
-#         slopes = slope(filtered_trajectories, length_upper_bound)
-#         ids, distances = find_distances(slopes, cluster, outlier_threshold)
-#         kmeans_dis_min = np.min(distances[0])
-#         kmeans_dis_max = np.max(distances[0])
-
-#     auto_filter_params = [area_id, length_lower_bound, length_upper_bound, cluster]
-
-#     outliers = [ids[i] for i, dist in enumerate(distances[0]) if dist > outlier_threshold]
-
-#     if len(outliers) > 50:
-#         return {"error": 1, "data": []}
-#     elif len(outliers) == 0:
-#         return {"error": 2, "data": []}
-#     else:
-#         return {"error": 0, "data": pack_data(outliers, data, filtered_trajectories.keys())}
+    filtered = None
+    if area_id == 1:
+        filtered = filter_func(area_a.is_in_area, length_lower_bound, length_upper_bound)
+    elif area_id == 2:
+        filtered = filter_func(area_b.is_in_area, length_lower_bound, length_upper_bound)
+    elif area_id == 3:
+        filtered = filter_func(area_c.is_in_area, length_lower_bound, length_upper_bound)
+    return filtered
 
 
-# @app.route('/outliers/auto/distance_range', methods=['GET'])
-# def get_distance_range():
-#     print(kmeans_dis_min, kmeans_dis_max)
-#     return [float(kmeans_dis_min), float(kmeans_dis_max)]
+@app.route('/outliers/auto', methods=['GET'])
+def get_outliers_auto():
+    global outliers
+    global kmeans_dis_min
+    global kmeans_dis_max
+    global ids
+    global distances
+    global auto_filter_params
+    global filtered_trajectories
+    area_id = int(request.args.get('area_id', 1))
+    length_lower_bound = int(request.args.get('length_lower_bound', 5))
+    length_upper_bound = int(request.args.get('length_upper_bound', 10))
+    cluster = int(request.args.get('cluster', 10))
+    outlier_threshold = float(request.args.get('outlier_threshold', 1))
+
+    if [area_id, length_lower_bound, length_upper_bound, cluster] != auto_filter_params:
+        filtered_trajectories = filter_by_area_and_length(filterer.filter_trajectory, area_id, length_lower_bound,
+                                                          length_upper_bound)
+        if filtered_trajectories is None:
+            filtered_trajectories = {}
+
+        interpolation(filtered_trajectories, length_upper_bound + 1)
+        slopes = slope(filtered_trajectories, length_upper_bound)
+        ids, distances = find_distances(slopes, cluster, outlier_threshold)
+        kmeans_dis_min = np.min(distances[0])
+        kmeans_dis_max = np.max(distances[0])
+
+    auto_filter_params = [area_id, length_lower_bound, length_upper_bound, cluster]
+
+    outliers = [ids[i] for i, dist in enumerate(distances[0]) if dist > outlier_threshold]
+
+    if len(outliers) > 50:
+        return {"error": 1, "data": []}
+    elif len(outliers) == 0:
+        return {"error": 2, "data": []}
+    else:
+        return {"error": 0, "data": pack_data(outliers, data, filtered_trajectories.keys())}
 
 
-# @app.route('/outliers/manual/acceleration', methods=['GET'])
-# def get_acceleration_auto():
-#     area_id = int(request.args.get('area_id'))
-#     threshold = float(request.args.get('threshold'))
-#     length_lower_bound = int(request.args.get('length_lower_bound', 5))
-#     length_upper_bound = int(request.args.get('length_upper_bound', 10))
+@app.route('/outliers/auto/distance_range', methods=['GET'])
+def get_distance_range():
+    print(kmeans_dis_min, kmeans_dis_max)
+    return [float(kmeans_dis_min), float(kmeans_dis_max)]
 
-#     filtered_velocity = filter_by_area_and_length(filterer.filter_velocity, area_id, length_lower_bound,
-#                                                   length_upper_bound)
-#     acceleration = calculate_acceleration(filtered_velocity)
 
-#     return sharp_change_accelerate(acceleration, threshold)
+@app.route('/outliers/manual/acceleration', methods=['GET'])
+def get_acceleration_auto():
+    area_id = int(request.args.get('area_id'))
+    threshold = float(request.args.get('threshold'))
+    length_lower_bound = int(request.args.get('length_lower_bound', 5))
+    length_upper_bound = int(request.args.get('length_upper_bound', 10))
 
-index_of_ID = 2
+    filtered_velocity = filter_by_area_and_length(filterer.filter_velocity, area_id, length_lower_bound,
+                                                  length_upper_bound)
+    acceleration = calculate_acceleration(filtered_velocity)
 
-@app.route('/MetricView', methods=['POST', 'GET'])
-def Metric_view_init():
-    # read data
-    parameter = pd.read_csv('data/Parameter.csv')
-    id = str(parameter['id'][index_of_ID])  #int类型会报错
-    mean_velocity = parameter['mean_velocity'][index_of_ID]
-    max_velocity = parameter['max_velocity'][index_of_ID]
-    sd_velocity = parameter['sd_velocity'][index_of_ID]
-    per_time_in_0_10 = parameter['per_time_in_0_10'][index_of_ID]
-    per_time_in_10_20 = parameter['per_time_in_10_20'][index_of_ID]
-    per_time_in_20_30 = parameter['per_time_in_20_30'][index_of_ID]
-    per_time_in_30_ = parameter['per_time_in_30_'][index_of_ID]
-    mean_acceleration = parameter['mean_acceleration'][index_of_ID]
-    std_acceleration = parameter['std_acceleration'][index_of_ID]
-    quick_acceleration = str(parameter['quick_acceleration'][index_of_ID])
-    quick_deceleration = str(parameter['quick_deceleration'][index_of_ID])
-
-    return jsonify({'id': id, 'mean_velocity': mean_velocity, 'max_velocity': max_velocity,
-                    'sd_velocity': sd_velocity, 'per_time_in_0_10': per_time_in_0_10,
-                    'per_time_in_10_20': per_time_in_10_20, 'per_time_in_20_30': per_time_in_20_30,
-                    'per_time_in_30_': per_time_in_30_, 'mean_acceleration': mean_acceleration,
-                    'std_acceleration': std_acceleration, 'quick_acceleration': quick_acceleration,
-                    'quick_deceleration': quick_deceleration})
-
-@app.route('/HistoryView', methods=['POST', 'GET'])
-def Hitory_view_init():
-    velocity = pd.read_csv('data/Velocity.csv')
-    id = str(velocity['id'][index_of_ID])
-    vplot = velocity['vplot'][index_of_ID]
-    vtime = velocity['vtime'][index_of_ID]
-    aplot = velocity['aplot'][index_of_ID]
-    orientation = velocity['orientation'][index_of_ID]
-
-    return jsonify({'id': id, 'vplot':vplot, 'vtime':vtime, 'aplot':aplot
-                    , 'orientation':orientation})
-
+    return sharp_change_accelerate(acceleration, threshold)
 
 index_of_ID = 2
 
@@ -253,46 +214,6 @@ def Hitory_view_init():
 
     return jsonify({'id': id, 'vplot':vplot, 'vtime':vtime, 'aplot':aplot
                     , 'orientation':orientation})
-
-
-index_of_ID = 2
-
-@app.route('/MetricView', methods=['POST', 'GET'])
-def Metric_view_init():
-    # read data
-    parameter = pd.read_csv('data/Parameter.csv')
-    id = str(parameter['id'][index_of_ID])  #int类型会报错
-    mean_velocity = parameter['mean_velocity'][index_of_ID]
-    max_velocity = parameter['max_velocity'][index_of_ID]
-    sd_velocity = parameter['sd_velocity'][index_of_ID]
-    per_time_in_0_10 = parameter['per_time_in_0_10'][index_of_ID]
-    per_time_in_10_20 = parameter['per_time_in_10_20'][index_of_ID]
-    per_time_in_20_30 = parameter['per_time_in_20_30'][index_of_ID]
-    per_time_in_30_ = parameter['per_time_in_30_'][index_of_ID]
-    mean_acceleration = parameter['mean_acceleration'][index_of_ID]
-    std_acceleration = parameter['std_acceleration'][index_of_ID]
-    quick_acceleration = str(parameter['quick_acceleration'][index_of_ID])
-    quick_deceleration = str(parameter['quick_deceleration'][index_of_ID])
-
-    return jsonify({'id': id, 'mean_velocity': mean_velocity, 'max_velocity': max_velocity,
-                    'sd_velocity': sd_velocity, 'per_time_in_0_10': per_time_in_0_10,
-                    'per_time_in_10_20': per_time_in_10_20, 'per_time_in_20_30': per_time_in_20_30,
-                    'per_time_in_30_': per_time_in_30_, 'mean_acceleration': mean_acceleration,
-                    'std_acceleration': std_acceleration, 'quick_acceleration': quick_acceleration,
-                    'quick_deceleration': quick_deceleration})
-
-@app.route('/HistoryView', methods=['POST', 'GET'])
-def Hitory_view_init():
-    velocity = pd.read_csv('data/Velocity.csv')
-    id = str(velocity['id'][index_of_ID])
-    vplot = velocity['vplot'][index_of_ID]
-    vtime = velocity['vtime'][index_of_ID]
-    aplot = velocity['aplot'][index_of_ID]
-    orientation = velocity['orientation'][index_of_ID]
-
-    return jsonify({'id': id, 'vplot':vplot, 'vtime':vtime, 'aplot':aplot
-                    , 'orientation':orientation})
-
 
 
 if __name__ == '__main__':
