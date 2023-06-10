@@ -14,6 +14,7 @@ from services.kmeans import find_distances
 from utils.data_utils import load_data, pack_data
 from utils.filter import Filter
 from services.acceleration import calculate_acceleration, sharp_change_accelerate
+from services.heading import calculate_heading_change, sharp_change_heading
 
 # instantiate the app
 app = Flask(__name__)
@@ -57,6 +58,7 @@ def heatmap_view_init():
                     'vis_mat_min': vis_mat_min,
                     'vis_mat_max': vis_mat_max,
                     'unique_fids': unique_fids})
+
 
 @app.route('/TrafficSituationViewRespond', methods=['POST', 'GET'])
 def traffic_situation_view_respond():
@@ -166,18 +168,50 @@ def get_distance_range():
 
 @app.route('/outliers/manual/acceleration', methods=['GET'])
 def get_acceleration_auto():
-    area_id = int(request.args.get('area_id'))
-    threshold = float(request.args.get('threshold'))
+    area_id = int(request.args.get('area_id', 1))
+    threshold = float(request.args.get('threshold', 0.5))
     length_lower_bound = int(request.args.get('length_lower_bound', 5))
     length_upper_bound = int(request.args.get('length_upper_bound', 10))
 
     filtered_velocity = filter_by_area_and_length(filterer.filter_velocity, area_id, length_lower_bound,
                                                   length_upper_bound)
-    acceleration = calculate_acceleration(filtered_velocity)
+    acceleration= calculate_acceleration(filtered_velocity)
 
-    return sharp_change_accelerate(acceleration, threshold)
+    outliers = sharp_change_accelerate(acceleration, threshold)
+
+    if len(outliers) > 50:
+        return {"error": 1, "data": []}
+    elif len(outliers) == 0:
+        return {"error": 2, "data": []}
+    else:
+        return {"error": 0, "data": pack_data(outliers ,data, filtered_velocity.keys())}
+
+
+@app.route('/outliers/manual/heading', methods=['GET'])
+def get_heading_auto():
+    area_id = int(request.args.get('area_id', 1))
+    threshold = float(request.args.get('threshold', 0.5))
+    length_lower_bound = int(request.args.get('length_lower_bound', 5))
+    length_upper_bound = int(request.args.get('length_upper_bound', 10))
+
+    filtered_heading = filter_by_area_and_length(filterer.filter_heading, area_id, length_lower_bound,
+                                                  length_upper_bound)
+    heading_change = calculate_heading_change(filtered_heading)
+
+    outliers = sharp_change_heading(heading_change, threshold)
+
+    print(outliers)
+
+    if len(outliers) > 50:
+        return {"error": 1, "data": []}
+    elif len(outliers) == 0:
+        return {"error": 2, "data": []}
+    else:
+        return {"error": 0, "data": pack_data(outliers ,data, filtered_heading.keys())}
+
 
 index_of_ID = 2
+
 
 @app.route('/MetricView', methods=['POST', 'GET'])
 def Metric_view_init():
@@ -202,6 +236,7 @@ def Metric_view_init():
                     'per_time_in_30_': per_time_in_30_, 'mean_acceleration': mean_acceleration,
                     'std_acceleration': std_acceleration, 'quick_acceleration': quick_acceleration,
                     'quick_deceleration': quick_deceleration})
+
 
 @app.route('/HistoryView', methods=['POST', 'GET'])
 def Hitory_view_init():

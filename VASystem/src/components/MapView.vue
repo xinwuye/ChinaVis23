@@ -76,6 +76,8 @@
         <div id="map-body">
           <svg ref="svg" id="svg" width="100%" height="100%"></svg>
         </div>
+        <div id="legend">
+        </div>
         <div>
           <el-slider v-model="indexOfFrame" :max="indexMax"></el-slider>
         </div>
@@ -102,6 +104,11 @@
 import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
+import {storeToRefs} from "pinia";
+import { useGlobalStore } from '../stores/global';
+
+const globalStore = useGlobalStore();
+const clickedId = storeToRefs(globalStore).clickedId;
 
 let svg = ref(null);
 
@@ -211,6 +218,7 @@ async function drawMap() {
   d3.select(svg.value).call(zoom);
 }
 
+
 function renderFrame(indexOfFrame) {
   let colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet", "pink", "brown", "black", "gray", "teal", "purple"];
 
@@ -218,6 +226,9 @@ function renderFrame(indexOfFrame) {
       .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
       .range(colors);
 
+  for(const i in colors){
+    d3.select("#legend").append("div").attr("color", i)
+  }
   const lineGenerator = d3.line()
       .curve(d3.curveCardinal)
       .x(d => projection.value([d[0]["x"], d[0]["y"]])![0])
@@ -241,7 +252,8 @@ function renderFrame(indexOfFrame) {
         .attr("fill", "none")
         .attr("stroke", (d) => String(colorScale(d[0][2])))
         .attr("stroke-width", 0.6)
-        .attr("d", lineGenerator);
+        .attr("d", lineGenerator)
+        .on("click", (d)=> {clickedId.value = d.target.__data__[0][1]});
   });
 }
 
