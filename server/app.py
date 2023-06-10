@@ -31,15 +31,21 @@ distances = []
 filtered_trajectories = {}
 
 
-@app.route('/TrafficSituationViewInit', methods=['POST', 'GET'])
-def traffic_situation_view_init():
+@app.route('/HeatmapViewInit', methods=['POST', 'GET'])
+def heatmap_view_init():
+    selected_data = request.json['selectedData']
+    sub_path = 'title' + str(int(selected_data))
     # read data/vis_mat.csv using numpy
-    vis_mat = np.loadtxt('data/vis_mat.csv', delimiter=',')
+    # vis_mat = np.loadtxt('data/vis_mat.csv', delimiter=',')
+    vis_mat = np.loadtxt(os.path.join(path, sub_path, 'vis_mat.csv'), delimiter=',')
     # absolute value of vis_mat
     vis_mat = np.abs(vis_mat)
     # caculate the min and max of vis_mat
     vis_mat_min = np.min(vis_mat)
     vis_mat_max = np.max(vis_mat)
+    with open(os.path.join(path, sub_path, 'laneroad_with9road.geojson')) as f:
+        laneroad_with9road = json.load(f)
+    laneroad_with9road_features = laneroad_with9road['features']
     unique_fids = list(map(lambda x: x['properties']['fid'], laneroad_with9road_features))
     # convert vis_mat to list of list, each list represents a cell in the matrix.
     # the formate of each list is [row, col, value]
@@ -55,18 +61,18 @@ def traffic_situation_view_init():
 @app.route('/TrafficSituationViewRespond', methods=['POST', 'GET'])
 def traffic_situation_view_respond():
     feat_names = [
-                #   '#未识别', # 0
+                  '#未识别', # 0
                   '#小型车辆',
                   '#行人',
                   '#非机动车',
                   '#卡车',
-                #   '#厢式货车、面包车', # 5
+                  '#厢式货车、面包车', # 5
                   '#客车',
                   '#静态物体',
-                #   '#路牙', # 8
-                #   '#锥桶', # 9
+                  '#路牙', # 8
+                  '#锥桶', # 9
                   '#手推车、三轮车',
-                #   '#信号灯', # 11
+                  '#信号灯', # 11
                   '#门、阀门、闸机、出入口',
                   '#停止车辆',
                   '#慢行车辆',
@@ -75,7 +81,9 @@ def traffic_situation_view_respond():
                   '交通参与者运动方向方差',
                   '交通参与者车头朝向方差',]
     fid = str(request.json['fid'])
-    situation = np.load('data/situation/situation_' + fid + '.npy')
+    selected_data = request.json['selectedData']
+    sub_path = 'title' + str(int(selected_data))
+    situation = np.load(os.path.join(path, sub_path, 'situation', 'situation_' + fid + '.npy'))
     ret = [[feat_names[j], i, situation[i, j]] 
            for i in range(situation.shape[0]) 
            for j in range(situation.shape[1])]
@@ -208,10 +216,6 @@ def Hitory_view_init():
                     , 'orientation':orientation})
 
 
-
 if __name__ == '__main__':
     path = 'data'
-    with open(os.path.join(path, 'laneroad_with9road.geojson')) as f:
-        laneroad_with9road = json.load(f)
-    laneroad_with9road_features = laneroad_with9road['features']
     app.run(host="localhost", debug='True')

@@ -7,7 +7,7 @@
             <ControlPanel/>
           </el-col>
           <el-col :span="10">
-            <MapView/>
+            <!-- <MapView/> -->
           </el-col>
           <el-col :span="8">
             <HistoryView/>

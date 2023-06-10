@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import * as echarts from 'echarts'; // use canvas to render
 import axios from 'axios';
@@ -20,28 +20,43 @@ import { storeToRefs } from "pinia";
 import { useGlobalStore } from '../stores/global';
 
 const globalStore = useGlobalStore();
+const selectedData = storeToRefs(globalStore).selectedData;
+const clickedFid = storeToRefs(globalStore).clickedFid;
 var data = null;
+var option;
+var heatmapContainer;
+var containerHeight;
+var containerWidth;
+var margin;
+var chartDom;
+var myChart;
+var width;
+var height;
+
 
 onMounted(() => {
-  const heatmapContainer = document.getElementById('heatmap-view');
+  heatmapContainer = document.getElementById('heatmap-view');
 
-  const containerHeight = heatmapContainer.clientHeight;
-  const containerWidth = heatmapContainer.clientWidth;
+  containerHeight = heatmapContainer.clientHeight;
+  containerWidth = heatmapContainer.clientWidth;
   // set the dimensions and margins of the graph
-  const margin = {top: 30, right: 30, bottom: 30, left: 30},
+  margin = {top: 30, right: 30, bottom: 30, left: 30},
     width = containerHeight - margin.left - margin.right,
     height = containerWidth - margin.top - margin.bottom;
 
-  var app = {};
+  // var app = {};
 
-  var chartDom = document.getElementById('heatmap-container');
-  var myChart = echarts.init(chartDom, null, {
+  chartDom = document.getElementById('heatmap-container');
+  myChart = echarts.init(chartDom, null, {
     useDirtyRect: true
   });
-  var option;
+});
 
-  let path = 'http://localhost:5000/TrafficSituationViewInit';
-  axios.post(path)
+watch(selectedData, (newVal) => {
+  let path = 'http://localhost:5000/HeatmapViewInit';
+  axios.post(path, {
+    selectedData: newVal
+    })
     .then((res) => {
       console.log(res.data)
       let xData = res.data.unique_fids;
@@ -110,13 +125,17 @@ onMounted(() => {
         ]
       };
       option && myChart.setOption(option);
+      myChart.on('click', function(params) {
+        console.log(params)
+        console.log(params.name);
+        clickedFid.value = params.name;
+      });
     })
     .catch((error) => {
       // eslint-disable-next-line
       console.error(error);
     }); 
-
-});
+})
 
 </script>
 

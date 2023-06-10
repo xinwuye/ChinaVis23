@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import * as echarts from 'echarts'; // use canvas to render
 import axios from 'axios';
@@ -21,10 +21,24 @@ import { storeToRefs } from "pinia";
 import { useGlobalStore } from '../stores/global';
 
 const globalStore = useGlobalStore();
+const selectedData = storeToRefs(globalStore).selectedData;
+const clickedFid = storeToRefs(globalStore).clickedFid;
+var chartContainer;
+var height;
 
 onMounted(() => {
-  RoadSecSelected('63')
+  chartContainer = d3.select("#horizon-chart-container");
+  height = document.getElementById('traffic-situation-view').clientHeight;
+  // check whether there is element under the container
+  // console.log(chartContainer.select("svg").empty());
+  // calculate int(1681341914599746 / 10000000)
+  let date = new Date(1681341914 * 1000) // Date object
+  console.log(date)
 });
+
+watch(clickedFid, (newVal) => {
+  RoadSecSelected(newVal, selectedData.value);
+})
 
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
@@ -46,7 +60,8 @@ function HorizonChart(data, {
   xType = d3.scaleUtc, // type of x-scale
   xDomain, // [xmin, xmax]
   textLength = 100, // length of text
-  xRange = [marginLeft, width - marginRight - textLength], // [left, right]
+  legendWidth = 50, // width of legend
+  xRange = [marginLeft, width - marginRight - textLength - legendWidth], // [left, right]
   yType = d3.scaleLinear, // type of y-scale
   yDomain, // [ymin, ymax]
   yRange = [size, size - bands * (size - padding)], // [bottom, top]
@@ -58,22 +73,25 @@ function HorizonChart(data, {
   const X = d3.map(data, x);
   const Y = d3.map(data, y);
   const Z = d3.map(data, z);
-  console.log(Z)
   if (defined === undefined) defined = (d, i) => !isNaN(X[i]) && !isNaN(Y[i]);
   const D = d3.map(data, defined);
-  console.log(D)
 
   // Compute default domains, and unique the z-domain.
   if (xDomain === undefined) xDomain = d3.extent(X);
   if (yDomain === undefined) yDomain = [0, d3.max(Y)];
   if (zDomain === undefined) zDomain = Z;
-  console.log(yDomain)
-  console.log(d3.max(Y))
   zDomain = new d3.InternSet(zDomain);
-  console.log(X)
+  // create a copy of yDomain
+  var legendTicks = yDomain.slice();
+  // interpolate 2 values between yDomain, getting a array of 4 values, don't use d3, use for loop
+  for (let i = 0; i < bands - 1; i++) {
+    legendTicks.splice(1, 0, yDomain[0] + (yDomain[1] - yDomain[0]) * (bands - (i + 1)) / bands);
+  }
+  // make legendTicks nice
+  legendTicks = legendTicks.map((d) => Math.round(d * 100) / 100);
+
   // Omit any data not present in the z-domain.
   const I = d3.range(X.length).filter(i => zDomain.has(Z[i]));
-  console.log(I)
 
   // Compute height.
   const height = zDomain.size * size + marginTop + marginBottom;
@@ -101,7 +119,6 @@ function HorizonChart(data, {
       .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
       .attr("font-family", "sans-serif")
       .attr("font-size", 10);
-  console.log(d3.group(I, i => Z[i]))
   const g = svg.selectAll("g")
     .data(d3.group(I, i => Z[i]))
     .join("g")
@@ -145,32 +162,55 @@ function HorizonChart(data, {
         .remove())
       .call(g => g.select(".domain").remove());
 
+  // Create a legend.
+  const legend = svg.append("g")
+      .attr("transform", `translate(${width - legendWidth},${marginTop})`)
+      .attr("text-anchor", "start")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+    .selectAll("g")
+    .data(colors)
+    .join("g")
+      .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+  legend.append("rect")
+      .attr("x", 0)
+      .attr("width", 19)
+      .attr("height", 19)
+      .attr("fill", d => d);
+
+  legend.append("text")
+      .attr("x", 24)
+      .attr("y", 9.5)
+      .attr("dy", "0.35em")
+      .text((d, i) => `≥${legendTicks[i]}`);
+
   return svg.node();
 }
 
-function RoadSecSelected(fid) {
+function RoadSecSelected(fid, title) {
   let path = 'http://localhost:5000/TrafficSituationViewRespond';
   axios.post(path, {
-    fid: fid
+    fid: fid,
+    selectedData: title,
     })
     .then((res) => {
       console.log(res.data)
       let data = res.data.situation;
       let n = res.data.n;
-      const chartContainer = d3.select("#horizon-chart-container");
-      // get the height of the container
-      const height = document.getElementById('traffic-situation-view').clientHeight;
       let size = height / n;
-      const bands = 7;
-      const color1 = "#4e7670"; 
+      const bands = 3;
+      const color1 = "#6bd4a3"; 
       const color2 = "#bf4b56"; 
 
       const colorScale = d3.scaleLinear()
-        .domain([0, 6])
+        .domain([0, bands - 1])
         .range([color1, color2])
         .interpolate(d3.interpolateRgb);
 
-      const colors = d3.range(7).map(colorScale);
+      const colors = d3.range(bands).map(colorScale);
+      console.log(colors);
+      chartContainer.selectAll('*').remove();
 
       chartContainer.append(() => HorizonChart(data, {
         x: d => d[1],
