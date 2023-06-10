@@ -6,7 +6,7 @@ def load_data():
     # read the the json files
     data: list = []
     for i in range(0, 1):
-        with open(f'data/{i}.json', 'r') as f:
+        with open(f'data/title1/{i}.json', 'r') as f:
             # read the file line by line and append to data
             while True:
                 line = f.readline()

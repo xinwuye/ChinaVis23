@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def calculate_acceleration(velocity:dict):
     acceleration = dict()
     for i in velocity.keys():
@@ -19,4 +16,5 @@ def sharp_change_accelerate(acceleration:dict, threshold:float):
         abs_acceleration = [abs(num) for num in acceleration[id_obj]]
         if max(abs_acceleration) > threshold:
             outliers.append(id_obj)
+    print(outliers)
     return outliers

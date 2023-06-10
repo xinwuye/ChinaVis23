@@ -34,7 +34,17 @@
                   <el-input-number v-model="autoThreshold" size="small" step=0.0001></el-input-number>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="数值精确筛选" name="Manual">
+              <el-tab-pane label="加速度精确筛选" name="Acceleration">
+                <div v-if="mode === 'Acceleration'" class="num-input-attr-traj">
+                  <span class="label-filter">加速度变化临界值</span>
+                  <el-input-number v-model="acceleration" size="small" step="0.01"></el-input-number>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="运动方向精确筛选" name="Heading">
+                <div v-if="mode === 'Heading'" class="num-input-attr-traj">
+                  <span class="label-filter">运动方向变化临界值</span>
+                  <el-input-number v-model="heading" size="small" step="0.01"></el-input-number>
+                </div>
               </el-tab-pane>
             </el-scrollbar>
             <el-button id="filter-button" type="primary" @click="doFilter">
@@ -66,6 +76,8 @@
         <div id="map-body">
           <svg ref="svg" id="svg" width="100%" height="100%"></svg>
         </div>
+        <div id="legend">
+        </div>
         <div>
           <el-slider v-model="indexOfFrame" :max="indexMax"></el-slider>
         </div>
@@ -92,49 +104,87 @@
 import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
+import {storeToRefs} from "pinia";
+import { useGlobalStore } from '../stores/global';
+
+const globalStore = useGlobalStore();
+const clickedId = storeToRefs(globalStore).clickedId;
 
 let svg = ref(null);
 
-async function doFilter() {
-  console.log("clicked");
-  loading.value = true;
-  let path = 'http://localhost:5000/outliers/auto';
-  axios.get(path, {
-    params: {
-      area_id: areaId.value, // replace with your area_id
-      length_lower_bound: lengthLowerBound.value, // replace with your desired value
-      length_upper_bound: lengthUpperBound.value, // replace with your desired value
-      cluster: cluster.value, // replace with your desired value
-      outlier_threshold: autoThreshold.value // replace with your desired value
+let handleResponse = (response) => {
+  loading.value = false;
+  console.log(response["data"])
+  if (response["data"]["error"] != 0) {
+    errorCode.value = response["data"]["error"];
+    filterError.value = true;
+
+    switch (errorCode.value) {
+      case 1:
+        errorMessage.value = "数据量过多，请提高临界值";
+        break;
+      case 2:
+        errorMessage.value = "无匹配数据，请降低临界值";
+        break;
+      case 3:
+        errorMessage.value = "未知错误代码:" + String(errorCode.value);
+
     }
-  })
-      .then((response) => {
-        loading.value = false;
-        console.log(response["data"])
-        if (response["data"]["error"] != 0) {
-          errorCode.value = response["data"]["error"];
-          filterError.value = true;
+  } else {
+    data.value = response["data"]["data"]
+    matchIDs.value = response["data"]["data"].map((d) => d[0]);
+  }
+}
 
-          switch (errorCode.value) {
-            case 1:
-              errorMessage.value = "数据量过多，请提高临界值";
-              break;
-            case 2:
-              errorMessage.value = "无匹配数据，请降低临界值";
-              break;
-            case 3:
-              errorMessage.value = "未知错误代码:" + String(errorCode.value);
-
-          }
-        } else {
-          data.value = response["data"]["data"]
-          matchIDs.value = response["data"]["data"].map((d) => d[0]);
-        }
-      })
-      .catch((error) => {
-        loading.value = false;
-        console.error(error);
-      });
+async function doFilter() {
+  loading.value = true;
+  if (mode.value == "Auto") {
+    let path = 'http://localhost:5000/outliers/auto';
+    axios.get(path, {
+      params: {
+        area_id: areaId.value, // replace with your area_id
+        length_lower_bound: lengthLowerBound.value, // replace with your desired value
+        length_upper_bound: lengthUpperBound.value, // replace with your desired value
+        cluster: cluster.value, // replace with your desired value
+        outlier_threshold: autoThreshold.value // replace with your desired value
+      }
+    })
+        .then(handleResponse)
+        .catch((error) => {
+          loading.value = false;
+          console.error(error);
+        });
+  } else if (mode.value == "Acceleration"){
+    let path = 'http://localhost:5000/outliers/manual/acceleration';
+    axios.get(path, {
+      params: {
+        area_id: areaId.value, // replace with your area_id
+        length_lower_bound: lengthLowerBound.value, // replace with your desired value
+        length_upper_bound: lengthUpperBound.value, // replace with your desired value
+        threshold: acceleration.value // replace with your desired value
+      }
+    })
+        .then(handleResponse)
+        .catch((error) => {
+          loading.value = false;
+          console.error(error);
+        });
+  } else {
+    let path = 'http://localhost:5000/outliers/manual/heading';
+    axios.get(path, {
+      params: {
+        area_id: areaId.value, // replace with your area_id
+        length_lower_bound: lengthLowerBound.value, // replace with your desired value
+        length_upper_bound: lengthUpperBound.value, // replace with your desired value
+        threshold: heading.value // replace with your desired value
+      }
+    })
+        .then(handleResponse)
+        .catch((error) => {
+          loading.value = false;
+          console.error(error);
+        });
+  }
 }
 
 async function drawMap() {
@@ -144,7 +194,6 @@ async function drawMap() {
   let path = d3.geoPath().projection(projection.value);
 
   let features = geojsonData.features;
-
   try {
     d3.select(svg.value)
         .append('g')
@@ -169,39 +218,49 @@ async function drawMap() {
   d3.select(svg.value).call(zoom);
 }
 
+
 function renderFrame(indexOfFrame) {
+  let colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet", "pink", "brown", "black", "gray", "teal", "purple"];
+
+  let colorScale = d3.scaleOrdinal()
+      .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+      .range(colors);
+
+  for(const i in colors){
+    d3.select("#legend").append("div").attr("color", i)
+  }
   const lineGenerator = d3.line()
       .curve(d3.curveCardinal)
-      .x(d => projection.value([d["x"], d["y"]])![0])
-      .y(d => projection.value([d["x"], d["y"]])![1]);
+      .x(d => projection.value([d[0]["x"], d[0]["y"]])![0])
+      .y(d => projection.value([d[0]["x"], d[0]["y"]])![1]);
 
   let perObjectCoordinate = {};
   for (let i = 0; i <= indexOfFrame; i++) {
-    console.log(selectedData.value[i]);
     if (!Object.keys(perObjectCoordinate).includes(String(selectedData.value[i].id))) {
-      perObjectCoordinate[String(selectedData.value[i].id)] = [JSON.parse(selectedData.value[i].position)];
+      perObjectCoordinate[String(selectedData.value[i].id)] = [[JSON.parse(selectedData.value[i].position), selectedData.value[i].id, selectedData.value[i].type]];
     } else {
-      perObjectCoordinate[String(selectedData.value[i].id)].push(JSON.parse(selectedData.value[i].position));
+      perObjectCoordinate[String(selectedData.value[i].id)].push([JSON.parse(selectedData.value[i].position), selectedData.value[i].id, selectedData.value[i].type]);
     }
   }
 
+  d3.selectAll(".traj").remove();
   Object.values(perObjectCoordinate).forEach(coordinates => {
-    d3.selectAll(".traj").remove();
-
     d3.selectAll("#map-container")
         .data(Array(coordinates))
         .append("path")
         .attr("class", "traj")
         .attr("fill", "none")
-        .attr("stroke", "red")
-        .attr("stroke-width", 0.4)
-        .attr("d", lineGenerator);
+        .attr("stroke", (d) => String(colorScale(d[0][2])))
+        .attr("stroke-width", 0.6)
+        .attr("d", lineGenerator)
+        .on("click", (d)=> {clickedId.value = d.target.__data__[0][1]});
   });
 }
 
-function switchSelectedID(){
+function switchSelectedID() {
   indexOfFrame.value = 0;
 }
+
 function closeDialog() {
   filterError.value = false;
 }
@@ -224,9 +283,12 @@ const indexMax = ref(50);
 const data = ref([]);
 const selectedData = ref([]);
 const projection = ref();
+const acceleration = ref(15);
+const heading = ref(0.5);
 
 onMounted(() => {
   drawMap();
+
   watch(selectedID, (newID, _) => {
     let element = data.value.find((d) => d[0] == newID);
     if (element && Array.isArray(element[1])) {
@@ -247,7 +309,7 @@ onMounted(() => {
 <style scoped>
 
 .map-view {
-  height: 100%;
+  height: 95%;
   width: 100%;
   border: 1px solid var(--el-border-color);
   border-radius: 5px;

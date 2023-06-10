@@ -59,3 +59,29 @@ class Filter:
             filtered_v[i] = v[i]
 
         return filtered_v
+
+    def filter_heading(self, is_in_area, lower_bound=10000, upper_bound=-1):
+        if lower_bound <= 1:
+            raise ValueError('lower_bound must be greater than 1')
+
+        h = dict()
+        for item in self.data:
+            position = json.loads(item['position'])
+            x = position['x']
+            y = position['y']
+
+            if is_in_area([x, y]) is False:
+                continue
+
+            if h.get(item['id']) is None:
+                h[item['id']] = [(item['time_meas'] / 1000000, item['heading'])]
+            else:
+                h[item['id']].append((item['time_meas'] / 1000000, item['heading']))
+
+        filtered_h = dict()
+        for i in h.keys():
+            if len(h[i]) > upper_bound or len(h[i]) < lower_bound:
+                continue
+            filtered_h[i] = h[i]
+
+        return filtered_h
