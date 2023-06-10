@@ -29,15 +29,14 @@ var height;
 onMounted(() => {
   chartContainer = d3.select("#horizon-chart-container");
   height = document.getElementById('traffic-situation-view').clientHeight;
-  // check whether there is element under the container
-  // console.log(chartContainer.select("svg").empty());
-  // calculate int(1681341914599746 / 10000000)
-  let date = new Date(1681341914 * 1000) // Date object
-  console.log(date)
 });
 
 watch(clickedFid, (newVal) => {
   RoadSecSelected(newVal, selectedData.value);
+})
+
+watch(selectedData, (newVal) => {
+  chartContainer.selectAll('*').remove();
 })
 
 // Copyright 2021 Observable, Inc.
@@ -209,14 +208,13 @@ function RoadSecSelected(fid, title) {
         .interpolate(d3.interpolateRgb);
 
       const colors = d3.range(bands).map(colorScale);
-      console.log(colors);
       chartContainer.selectAll('*').remove();
 
       chartContainer.append(() => HorizonChart(data, {
-        x: d => d[1],
+        x: d => new Date(d[1]),
         y: d => d[2],
         z: d => d[0],
-        xType: d3.scaleLinear,
+        // xType: d3.scaleLinear,
         marginLeft: 5,
         marginRight: 15,
         size,

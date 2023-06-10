@@ -10,12 +10,12 @@
             <!-- <MapView/> -->
           </el-col>
           <el-col :span="8">
-            <HistoryView/>
+            <!-- <HistoryView/> -->
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="4">
-            <MetricView/>
+            <!-- <MetricView/> -->
           </el-col>
           <el-col :span="12">
             <TrafficSituationView/>

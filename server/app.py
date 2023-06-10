@@ -74,17 +74,18 @@ def traffic_situation_view_respond():
                   '#手推车、三轮车',
                   '#信号灯', # 11
                   '#门、阀门、闸机、出入口',
-                  '#停止车辆',
-                  '#慢行车辆',
-                  '#超速车辆',
-                  '平均车速',
+                  '#静止交通参与者',
+                  '#慢行交通参与者',
+                  '#超速交通参与者',
+                  '交通参与者平均速度',
                   '交通参与者运动方向方差',
                   '交通参与者车头朝向方差',]
     fid = str(request.json['fid'])
     selected_data = request.json['selectedData']
     sub_path = 'title' + str(int(selected_data))
     situation = np.load(os.path.join(path, sub_path, 'situation', 'situation_' + fid + '.npy'))
-    ret = [[feat_names[j], i, situation[i, j]] 
+    intervals = np.load(os.path.join(path, sub_path, 'intervals.npy')) // 1000
+    ret = [[feat_names[j], intervals[i], situation[i, j]] 
            for i in range(situation.shape[0]) 
            for j in range(situation.shape[1])]
 
@@ -101,8 +102,8 @@ area_c = ClosedArea(
     [CutLine([15, -100], [-50, -60]), CutLine([-80, -120], [-20, -160]), CutLine([-50, -60], [-20, -160]),
      CutLine([15, -100], [-80, -120])], 3)
 
-data = load_data()
-filterer = Filter(data)
+# data = load_data()
+# filterer = Filter(data)
 
 
 def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10):

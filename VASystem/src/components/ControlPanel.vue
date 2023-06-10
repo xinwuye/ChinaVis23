@@ -22,6 +22,7 @@
         ></el-option>  
       </el-select>
     </div>
+    <div>当前展示交通参与者ID：{{clickedId}}</div>
   </div>
 </template>
 
@@ -31,6 +32,7 @@ import { useGlobalStore } from '../stores/global';
 
 const globalStore = useGlobalStore();
 const selectedData = storeToRefs(globalStore).selectedData;
+const clickedId = storeToRefs(globalStore).clickedId;
 const dataList = [1, 2, 3];
 </script>
 

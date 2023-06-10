@@ -85,7 +85,8 @@ watch(selectedData, (newVal) => {
         grid: {
           height: "90%",
           top: "5%",
-          left: "15%",
+          left: "2%",
+          right: "20%",
           backgroundColor: "#f2f7f7",
           show: true,
         },
@@ -93,12 +94,15 @@ watch(selectedData, (newVal) => {
           type: 'continuous',
           min: min,
           max: max,
+          range: [min, max],
+          precision: 3,
           dimension: 2,
           calculable: true,
           realtime: false,
           orient: "vertical",
-          left: "1%",
+          left: "80%",
           bottom: "30%",
+          align: 'left',
           inRange: {
             color: [
               // ['#d2bb4c', '#b054c1', '#82cd53', '#626ccc', '#d05d2e', '#6bd4a3', '#ce478c', 
@@ -117,6 +121,10 @@ watch(selectedData, (newVal) => {
             emphasis: {
               label: {
                 show: false
+              },
+              itemStyle: {
+                borderColor: "#333",
+                borderWidth: 1
               }
             },
             progressive: 1000,
