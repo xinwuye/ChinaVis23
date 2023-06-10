@@ -104,8 +104,8 @@ area_c = ClosedArea(
     [CutLine([15, -100], [-50, -60]), CutLine([-80, -120], [-20, -160]), CutLine([-50, -60], [-20, -160]),
      CutLine([15, -100], [-80, -120])], 3)
 
-# data = load_data()
-# filterer = Filter(data)
+data = load_data()
+filterer = Filter(data)
 
 
 def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10):
@@ -211,14 +211,19 @@ def get_heading_auto():
         return {"error": 0, "data": pack_data(outliers ,data, filtered_heading.keys())}
 
 
-index_of_ID = 2
+# index_of_ID = 2
 
 
 @app.route('/MetricView', methods=['POST', 'GET'])
 def Metric_view_init():
+    selected_data = request.json['selectedData']
+    sub_path = 'title' + str(int(selected_data))
     # read data
-    parameter = pd.read_csv('data/Parameter.csv')
-    id = str(parameter['id'][index_of_ID])  #int类型会报错
+    parameter = pd.read_csv(os.path.join(path, sub_path, 'Parameter.csv'))
+    # id = str(parameter['id'][index_of_ID])  #int类型会报错
+    id = str(request.json['id'])
+    # find the index of the id
+    index_of_ID = parameter[parameter['id'] == int(id)].index.tolist()[0]
     mean_velocity = parameter['mean_velocity'][index_of_ID]
     max_velocity = parameter['max_velocity'][index_of_ID]
     sd_velocity = parameter['sd_velocity'][index_of_ID]
@@ -241,8 +246,13 @@ def Metric_view_init():
 
 @app.route('/HistoryView', methods=['POST', 'GET'])
 def Hitory_view_init():
-    velocity = pd.read_csv('data/Velocity.csv')
-    id = str(velocity['id'][index_of_ID])
+    selected_data = request.json['selectedData']
+    sub_path = 'title' + str(int(selected_data))
+    velocity = pd.read_csv(os.path.join(path, sub_path, 'Velocity.csv'))
+    # id = str(velocity['id'][index_of_ID])
+    id = str(request.json['id'])
+    # find the index of the id
+    index_of_ID = velocity[velocity['id'] == int(id)].index.tolist()[0]
     vplot = velocity['vplot'][index_of_ID]
     vtime = velocity['vtime'][index_of_ID]
     aplot = velocity['aplot'][index_of_ID]

@@ -11,7 +11,8 @@
       <div id="left-col" v-loading="loading">
         <div id="map-filter">
           <el-tabs v-model="mode" class="mode-situation" type="border-card" stretch="true" id="filter-tab">
-            <el-scrollbar height="220">
+            <!-- <el-scrollbar height="220">  -->
+            <el-scrollbar style="height: 130px;">
               <div id="num-input-length-traj-lb" class="num-input-attr-traj">
                 <span class="label-filter">目标区域</span>
                 <el-input-number v-model="areaId" size="small"></el-input-number>
@@ -47,7 +48,7 @@
                 </div>
               </el-tab-pane>
             </el-scrollbar>
-            <el-button id="filter-button" type="primary" @click="doFilter">
+            <el-button id="filter-button" type="primary" size="small" @click="doFilter">
               筛选
             </el-button>
           </el-tabs>
@@ -60,6 +61,7 @@
               v-model="selectedID"
               placeholder="Outlier ID"
               style="width: 60%; padding-left: 5%; padding-right: 5%"
+              size="small"
           >
             <el-option
                 v-for="id in matchIDs"
@@ -309,27 +311,39 @@ onMounted(() => {
 <style scoped>
 
 .map-view {
-  height: 95%;
+  height: 100%;
   width: 100%;
   border: 1px solid var(--el-border-color);
   border-radius: 5px;
   margin-top: 0px;
 }
 
+.ep-tabs {
+  --ep-tabs-header-height: 30px;
+}
+
+.ep-tabs__nav-next, .ep-tabs__nav-prev {
+  line-height: 30px;
+}
+
+.ep-button {
+  width: 70%;
+}
+
 #map-filter {
   width: 100%;
-  height: 80%;
+  height: 75%;
 }
 
 #map-body {
   width: 100%;
-  height: 90%;
+  height: 80%;
 }
 
 .label-filter {
   font-size: 10px;
   color: var(--el-text-color-secondary);
-  line-height: 44px;
+  line-height: 24px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,9 +359,9 @@ onMounted(() => {
   margin-top: 10px;
 }
 
-.mode-situation {
-  height: 90%;
-}
+/* .mode-situation {
+  height: 100% !important;
+} */
 
 #view-body {
   display: flex;
@@ -398,7 +412,7 @@ onMounted(() => {
 }
 
 #candidates {
-  height: 25%;
+  height: 20%;
   display: flex;
   justify-content: center;
   align-items: center;

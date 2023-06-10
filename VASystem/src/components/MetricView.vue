@@ -1,7 +1,7 @@
 <template>
   <div class="map-view" style="borderRadius: small">
     <div class="toolbar">
-      <span class="toolbar-text">MetricView</span>
+      <span class="toolbar-text">指标视图</span>
     </div>
 
     <div id="view-body">
@@ -13,16 +13,24 @@
 
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as d3 from 'd3';
 import axios from 'axios';
+import { storeToRefs } from "pinia";
+import { useGlobalStore } from '../stores/global';
 
 let svg = ref(null);
 let path = 'http://localhost:5000/MetricView';
+const globalStore = useGlobalStore();
+const selectedData = storeToRefs(globalStore).selectedData;
+const clickedId = storeToRefs(globalStore).clickedId;
 
-async function drawMap() {
+async function drawMap(id, title) {
 
-  axios.post(path).then((res) => {
+  axios.post(path,{
+    id: id,
+    selectedData: title,
+    }).then((res) => {
     //console.log(res.data.id)
     var data1 = res.data
     var data2 = [data1.per_time_in_0_10, data1.per_time_in_10_20, data1.per_time_in_20_30,
@@ -181,7 +189,11 @@ async function drawMap() {
 
 
 onMounted(() => {
-  drawMap();
+  // drawMap();
+})
+
+watch(clickedId, (newVal, oldVal) => {
+  drawMap(newVal, selectedData.value);
 })
 </script>
 

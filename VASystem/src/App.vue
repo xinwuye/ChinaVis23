@@ -4,18 +4,18 @@
       <el-main>
         <el-row>
           <el-col :span="6">
-            <ControlPanel/>
+            <MetricView/>            
           </el-col>
           <el-col :span="10">
             <MapView/>
           </el-col>
           <el-col :span="8">
-            <!-- <HistoryView/> -->
+            <HistoryView/>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="4">
-            <!-- <MetricView/> -->
+            <ControlPanel/>
           </el-col>
           <el-col :span="12">
             <TrafficSituationView/>
