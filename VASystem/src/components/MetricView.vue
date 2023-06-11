@@ -4,10 +4,10 @@
       <span class="toolbar-text">指标视图</span>
     </div>
 
-    <div id="view-body">
-      <svg ref="svg" id="svg" width="100%" height="100%"></svg>
+    <div id="view-body" style="calc(100% - 20px); width: 100%;">
+      <!-- <svg ref="svg" id="svg" width="100%" height="100%"></svg> -->
+      <svg ref="svg" id="svg" style="height: 100%; width: 100%;"></svg>
     </div>
-
   </div>
 </template>
 
@@ -38,11 +38,16 @@ async function drawMap(id, title) {
 
     const margin = { top: 30, right: 30, bottom: 30, left: 30 }
 
+    // get the width and height of #view-body
+    const width = document.getElementById('view-body').clientWidth - margin.left - margin.right
+    const height = document.getElementById('view-body').clientHeight - margin.top - margin.bottom
+
     var config = {
-      radius: 100,
-      center: [225, 200],
+      radius: width / 4,
+      // center: [225, 200],
+      center: [width / 2, height / 2],
       tickNum: 6,  //边数
-      innerWidth: 20,  //内部间隔
+      innerWidth: width / 20,  //内部间隔
       polygonNum: 4 //有几层多边形
     }
 
@@ -105,8 +110,10 @@ async function drawMap(id, title) {
       else if (i == 1 || i == 2) { return 'start'; }
       else { return 'end'; }
     }
-    var txtList1 = ['% of time in speed', '% of time in speed', '% of time in speed',
-      '% of time in', 'number of acceleration', 'number of deceleration']
+    // var txtList1 = ['% of time in speed', '% of time in speed', '% of time in speed',
+    //   '% of time in', 'number of acceleration', 'number of deceleration']
+    var txtList1 = ['%时间为速度', '%时间为速度', '%时间为速度',
+      '%时间在', '#加速', '#减速']
     d3.select(svg.value)
       .append('g')
       .selectAll("txt")
@@ -123,8 +130,10 @@ async function drawMap(id, title) {
         return data2[i];
       });
 
-    var txtList2 = ['interval 0-10 m/s', 'interval 10-20 m/s', 'interval 20-30 m/s',
-      'speed >30 m/s', '>0.005 m/s^2', '<-0.005 m/s^2']
+    // var txtList2 = ['interval 0-10 m/s', 'interval 10-20 m/s', 'interval 20-30 m/s',
+    //   'speed >30 m/s', '>0.005 m/s^2', '<-0.005 m/s^2']
+    var txtList2 = ['区间 0-10 m/s', '区间 10-20 m/s', '区间 20-30 m/s',
+      ' >30 m/s', '>0.005 m/s^2', '<-0.005 m/s^2']
     d3.select(svg.value)
       .append('g')
       .selectAll("txt")

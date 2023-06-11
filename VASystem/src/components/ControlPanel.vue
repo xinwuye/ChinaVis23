@@ -22,8 +22,16 @@
         ></el-option>  
       </el-select>
     </div>
-    <div>当前展示交通参与者ID：{{clickedId}}</div>
-    <div>当前展示路段ID：{{clickedFid}}</div>
+    <div style="display: flex; align-items: center;">
+      <span class="label-text">
+        当前展示交通参与者ID：{{clickedId}}
+      </span>
+    </div>
+    <div style="display: flex; align-items: center;">
+      <span class="label-text">
+        当前展示路段ID：{{clickedFid}}
+      </span>
+    </div>
   </div>
 </template>
 

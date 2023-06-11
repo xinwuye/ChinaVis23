@@ -104,7 +104,8 @@ area_c = ClosedArea(
     [CutLine([15, -100], [-50, -60]), CutLine([-80, -120], [-20, -160]), CutLine([-50, -60], [-20, -160]),
      CutLine([15, -100], [-80, -120])], 3)
 
-data = load_data()
+current_title = 1
+data = load_data(current_title)
 filterer = Filter(data)
 
 
@@ -131,6 +132,16 @@ def get_outliers_auto():
     global distances
     global auto_filter_params
     global filtered_trajectories
+
+    global current_title
+    global data
+    global filterer
+
+    if current_title != int(request.args.get('title')):
+        current_title = int(request.args.get('title'))
+        data = load_data(current_title)
+        filterer = Filter(data)
+
     area_id = int(request.args.get('area_id', 1))
     length_lower_bound = int(request.args.get('length_lower_bound', 5))
     length_upper_bound = int(request.args.get('length_upper_bound', 10))
@@ -161,14 +172,23 @@ def get_outliers_auto():
         return {"error": 0, "data": pack_data(outliers, data, filtered_trajectories.keys())}
 
 
-@app.route('/outliers/auto/distance_range', methods=['GET'])
-def get_distance_range():
-    print(kmeans_dis_min, kmeans_dis_max)
-    return [float(kmeans_dis_min), float(kmeans_dis_max)]
+# @app.route('/outliers/auto/distance_range', methods=['GET'])
+# def get_distance_range():
+#     print(kmeans_dis_min, kmeans_dis_max)
+#     return [float(kmeans_dis_min), float(kmeans_dis_max)]
 
 
 @app.route('/outliers/manual/acceleration', methods=['GET'])
 def get_acceleration_auto():
+    global current_title
+    global data
+    global filterer
+
+    if current_title != int(request.args.get('title')):
+        current_title = int(request.args.get('title'))
+        data = load_data(current_title)
+        filterer = Filter(data)
+
     area_id = int(request.args.get('area_id', 1))
     threshold = float(request.args.get('threshold', 0.5))
     length_lower_bound = int(request.args.get('length_lower_bound', 5))
@@ -190,6 +210,15 @@ def get_acceleration_auto():
 
 @app.route('/outliers/manual/heading', methods=['GET'])
 def get_heading_auto():
+    global current_title
+    global data
+    global filterer
+
+    if current_title != int(request.args.get('title')):
+        current_title = int(request.args.get('title'))
+        data = load_data(current_title)
+        filterer = Filter(data)
+
     area_id = int(request.args.get('area_id', 1))
     threshold = float(request.args.get('threshold', 0.5))
     length_lower_bound = int(request.args.get('length_lower_bound', 5))

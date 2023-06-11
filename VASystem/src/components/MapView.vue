@@ -111,6 +111,7 @@ import { useGlobalStore } from '../stores/global';
 
 const globalStore = useGlobalStore();
 const clickedId = storeToRefs(globalStore).clickedId;
+const selectedTitle = storeToRefs(globalStore).selectedData;
 
 let svg = ref(null);
 
@@ -144,6 +145,7 @@ async function doFilter() {
     let path = 'http://localhost:5000/outliers/auto';
     axios.get(path, {
       params: {
+        title: selectedTitle.value,
         area_id: areaId.value, // replace with your area_id
         length_lower_bound: lengthLowerBound.value, // replace with your desired value
         length_upper_bound: lengthUpperBound.value, // replace with your desired value
@@ -160,6 +162,7 @@ async function doFilter() {
     let path = 'http://localhost:5000/outliers/manual/acceleration';
     axios.get(path, {
       params: {
+        title: selectedTitle.value,
         area_id: areaId.value, // replace with your area_id
         length_lower_bound: lengthLowerBound.value, // replace with your desired value
         length_upper_bound: lengthUpperBound.value, // replace with your desired value
@@ -175,6 +178,7 @@ async function doFilter() {
     let path = 'http://localhost:5000/outliers/manual/heading';
     axios.get(path, {
       params: {
+        title: selectedTitle.value,
         area_id: areaId.value, // replace with your area_id
         length_lower_bound: lengthLowerBound.value, // replace with your desired value
         length_upper_bound: lengthUpperBound.value, // replace with your desired value
@@ -189,8 +193,10 @@ async function doFilter() {
   }
 }
 
-async function drawMap() {
-  let geojsonData = await d3.json("./lane.geojson");
+async function drawMap(title) {
+  d3.select(svg.value).selectAll("*").remove();
+  let geojsonData = await d3.json("./title" + title.toString() + "/lane.geojson");
+  // let geojsonData = await d3.json("./title1/lane.geojson");
 
   projection.value = d3.geoIdentity().fitSize([400, 200], geojsonData);
   let path = d3.geoPath().projection(projection.value);
@@ -289,7 +295,7 @@ const acceleration = ref(15);
 const heading = ref(0.5);
 
 onMounted(() => {
-  drawMap();
+  // drawMap();
 
   watch(selectedID, (newID, _) => {
     let element = data.value.find((d) => d[0] == newID);
@@ -303,6 +309,10 @@ onMounted(() => {
   watch(indexOfFrame, (newFrameIndex, _) => {
     renderFrame(indexOfFrame.value);
   });
+})
+
+watch(selectedTitle, (newVal) => {
+  drawMap(newVal);
 })
 
 </script>
