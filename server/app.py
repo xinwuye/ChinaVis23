@@ -105,8 +105,8 @@ area_c = ClosedArea(
      CutLine([15, -100], [-80, -120])], 3)
 
 current_title = 1
-data = load_data(current_title)
-filterer = Filter(data)
+# data = load_data(current_title)
+# filterer = Filter(data)
 
 
 def filter_by_area_and_length(filter_func, area_id: int, length_lower_bound: int = 5, length_upper_bound: int = 10):
